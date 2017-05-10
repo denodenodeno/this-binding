@@ -45,6 +45,7 @@ body {
 }
 
 .reveal pre code {
+    max-height: 600px!important;
     padding: 20px!important;
 }
 

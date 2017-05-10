@@ -168,7 +168,7 @@
 
 								function cb(f) {
 									//f is reference to fn
-									f(); //call-site
+									f();
 								}
 
 								var obj = {
@@ -176,7 +176,6 @@
 									fn: fn
 								};
 
-								var y = obj.fn;
 								var x = 'global';
 
 								cb(obj.fn); //'global'
