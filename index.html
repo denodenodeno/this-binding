@@ -1,0 +1,393 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<title>this keyword</title>
+
+		<meta name="description" content="this keyword in JavaScript">
+		<meta name="author" content="Denislav Ganchev">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+
+		<link href='https://fonts.googleapis.com/css?family=Roboto:400,500,300,700,400italic,300italic' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css">
+		<link rel="stylesheet" href="css/styles.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+
+			<div class="slides">
+				<section>
+					<h2><span class="color__yellow">this</span> keyword</h2>
+				</section>
+
+				<section>
+					<h2><span class="color__yellow">this</span> definition</h2>
+
+					<ul>
+						<li class="fragment"><span class="color__blue">not</span> an lexical-time binding</li>
+						<li class="fragment">it's <span class="color__blue">runtime binding</span></li>
+						<li class="fragment"><span class="color__blue">this</span> is related to the way function is called</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2 class="color__yellow">
+						Rules for finding <span class="color__blue">this</span> binding
+					</h2>
+					<section>
+						<h4>
+							Function <span class="color__blue">call site</span> and Function <span class="color__blue">call stack</span>
+						</h4>
+						<pre>
+							<code data-trim data-no-escape>
+								function fnOne() {
+									//call stack - fnOne
+									console.log('function one');
+
+									fnTwo(); //call-site for 'fnTwo'
+								}
+
+								function fnTwo() {
+									//call stack - fnOne -> fnTwo
+									console.log('function two');
+
+									fnThree(); //call-site for 'fnThree'
+								}
+
+								function fnThree() {
+									//call stack - fnOne -> fnTwo -> fnThree
+									console.log('function three');
+								}
+
+								fnOne(); // call-site for 'fnOne'
+							</code>
+						</pre>
+					</section>
+
+					<section>
+						<h4><span class="color__blue">Default</span> binding</h4>
+
+						<pre>
+							<code data-trim data-no-escape>
+								var x = 5;
+
+								function fn() {
+									console.log(this.x);
+								}
+
+								fn(); //5
+							</code>
+						</pre>
+					</section>
+
+					<section>
+						<h4><span class="color__blue">Default</span> binding in <span class="color__blue">'strict'</span> mode</h4>
+
+						<pre>
+							<code data-trim data-no-escape>
+								var x = 5;
+
+								function fn() {
+									'use strict';
+
+									console.log(this.x);
+								}
+
+								fn(); //TypeError: 'this' is 'undefined'
+							</code>
+						</pre>
+					</section>
+
+					<section>
+						<h4><span class="color__blue">Implicit</span> binding</h4>
+
+						<pre>
+							<code data-trim data-no-escape>
+								var obj = {
+									x: 5,
+									fn: fn
+								};
+
+								function fn() {
+									console.log(this.x);
+								}
+
+								obj.fn(); //5
+							</code>
+						</pre>
+					</section>
+
+					<section>
+						<h4 class="color__blue">Implicitly lost</h4>
+
+						<pre>
+							<code data-trim data-no-escape>
+								function fn() {
+									console.log(this.x);
+								}
+
+								var obj = {
+									x: 5,
+									fn: fn
+								};
+
+								var y = obj.fn;
+								var x = 'global';
+
+								y(); //'global'
+							</code>
+						</pre>
+					</section>
+
+					<section>
+						<h4 class="color__blue">Implicitly lost - callback function</h4>
+
+						<pre>
+							<code data-trim data-no-escape>
+								function fn() {
+									console.log(this.x);
+								}
+
+								function cb(f) {
+									//f is reference to fn
+									f(); //call-site
+								}
+
+								var obj = {
+									x: 5,
+									fn: fn
+								};
+
+								var y = obj.fn;
+								var x = 'global';
+
+								cb(obj.fn); //'global'
+							</code>
+						</pre>
+					</section>
+
+					<section>
+						<h4 class="color__blue">Explicit binding</h4>
+						<h5>using .call() and .apply()</h5>
+
+						<pre>
+							<code data-trim data-no-escape>
+								function fn() {
+									console.log(this.x);
+								}
+
+								var obj = {
+									x: 5
+								};
+
+								//call
+								fn.call(obj); //5								
+								
+							</code>
+						</pre>
+					</section>
+
+					<section>
+						<h4 class="color__blue">Hard binding</h4>
+						<h5>using .bind()</h5>
+
+						<pre>
+							<code data-trim data-no-escape>
+								var x = 10;
+
+								function fn() {
+									console.log(this.x);
+								}
+
+								var obj = {
+									x: 5								
+								};
+
+								var y = fn.bind(obj);
+								y(); //5
+								console.log(y.name); // "bound fn"
+							</code>
+						</pre>
+					</section>
+
+					<section>
+						<h4><span class="color__blue">'new'</span> binding</h4>
+
+						<pre>
+							<code data-trim data-no-escape>
+								function Person(name) {
+									this.name = name;
+								}
+								
+								var x = new Person('deno');
+								console.log(x.name); //deno
+							</code>
+						</pre>
+					</section>
+
+					<section>
+						<h4 class="color__blue">Invoking function with 'new'</h4>
+
+						<ul>
+							<li class="fragment">
+								new object is created(constructed)
+							</li>
+							<li class="fragment">
+								that object is Prototype linked
+							</li>
+							<li class="fragment">
+								newly created object is the 'this' binding for that function call
+							</li>
+							<li class="fragment">
+								the function will return the newly constructed object, unless the function explicitly returns its own alternate object
+							</li>
+						</ul>
+					</section>
+
+
+					<section>
+						<h4 class="color__blue">Binding rules priority</h4>
+
+						<ul>
+							<li class="fragment">'new' binding</li>
+							<li class="fragment">explicit binding - .call(); .apply(); .bind();</li>
+							<li class="fragment">implicit binding</li>
+							<li class="fragment">default binding</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2 class="color__blue">Determine 'this'</h2>
+
+						<ul>
+							<li class="fragment">Is the function called with 'new' in front? If so, 'this' is the returned object</li>
+							<li class="fragment">Is the function called with .call, .apply or .bind? If so, 'this' is the explicitly specified object</li>
+							<li class="fragment">If null or undefined is passed as context in .call, .apply or .bind, 'default binding' rule applies.</li>
+							<li class="fragment">Is the function called with a context object? If so, 'this' is the context object.</li>
+							<li class="fragment">Otherwise, 'this' is undefined in 'strict mode' or 'global' object in non-strict mode.</li>
+						</ul>
+					</section>
+
+				</section>
+
+				<section>
+					<h2 class="color__yellow">Arrow functions</h2>
+				</section>
+
+				<section>
+					<h2 class="color__yellow">Overview</h2>
+					<h5>Syntax</h5>
+					<pre>
+						<code data-trim data-no-escape>
+							const arrowFn = args => arg;
+							//equivalent to
+							const arrowFn = args => {return args;};
+						</code>
+					</pre>
+					<ul>
+						<li class="fragment">
+							<span class="color__blue">
+								does not bind this, super, arguments or new.target
+							</span>
+						</li>
+						<li class="fragment">
+							can not be called with new - they do not have [[Construct]] method
+						</li>
+						<li class="fragment">
+							has no prototype
+						</li>
+						<li class="fragment">
+							<span class="color__blue">this</span> binding can not be changed
+						</li>
+						<li class="fragment">
+							has no arguments object
+						</li>
+						<li class="fragment">
+							parameters names must be unique
+						</li>
+						<li class="fragment">
+							Invoked through call or apply - this is ignored
+						</li>
+						<li class="fragment">arrow functions has .name property like normal functions</li>
+					</ul>
+
+				</section>
+
+				<section>
+					<h2 class="color__yellow">Arrow functions and <span class="color__blue">this</span></h2>
+
+					<ul>
+						<li class="fragment">
+							arrow functions do not have this binding at all
+						</li>
+						<li class="fragment">
+							<h5>Example: </h5>
+							<pre>
+								<code data-trim data-no-escape>
+									function fn() {
+									   return () => {
+									      return () => {
+									         return () => {
+									            console.log("prop:", this.prop);
+									         };
+									      };
+									   };
+									}
+
+									fn.call( { prop: 5 } )()()();
+									// prop: 5
+								</code>
+							</pre>
+						</li>
+					</ul>
+
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+                width: 1200,
+                height: 800,
+                transition: 'slide', // none/fade/slide/convex/concave/zoom
+                // Optional reveal.js plugins
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true },
+                    { src: 'plugin/notes/notes.js', async: true }
+                ]
+			});
+		</script>
+	</body>
+</html>
